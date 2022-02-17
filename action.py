@@ -18,7 +18,8 @@ class Target(Enum):
 
 class Action():
 
-    def __init__(self, type1: ActionType, type2: ActionType, target1: Target, target2: Target, optional: bool = False):
+    def __init__(self, description: str, type1: ActionType, type2: ActionType, target1: Target, target2: Target, optional: bool = False):
+        self.description = description
         self.type1 = type1
         self.type2 = type2
         self.target1 = target1
@@ -34,7 +35,7 @@ class ActionConcatenation(Enum):
 
 class ActionSequence():
 
-    def __init__(self, actions: list[Action], concatenation: list[ActionConcatenation] = list(), optional: bool = False):
+    def __init__(self, actions: list[Action], concatenation: ActionConcatenation = None, optional: bool = False):
         self.actions = actions
         self.concatenation = concatenation
         self.optional = optional

@@ -43,11 +43,12 @@ class Team(Enum):
 
 class Card(ABC):
 
-    def __init__(self, role: Role, team: Team, max_num: int, actions: list[Action] = list()):
+    def __init__(self, role: Role, team: Team, max_num: int, action: ActionSequence = None):
         self.role = role
+        self.original_role = role
         self.team = team
         self.max_num = max_num
-        self.actions = actions
+        self.action = action
 
     def pool_requirements(self, card_pool: list, player_count: int) -> bool:
         """Checks if all cards allowed/disallowed for this card are in the pool. """
@@ -58,12 +59,13 @@ class Card(ABC):
     def known_facts(self, card_pool):
         """Shows the facts known to that player at the start of the game."""
 
+
 class Copycat(Card):
 
     def __init__(self):
         super().__init__(Role.COPYCAT, Team.VILLAGER, 1,
                          ActionSequence([
-                             Action(ActionType.COPY, None,
+                             Action('Copy a card on the table', ActionType.COPY, None,
                                     Target.TABLE_CARD_ANY, None)
                          ]))
 
@@ -79,7 +81,7 @@ class Alpha(Card):
     def __init__(self):
         super().__init__(Role.ALPHA, Team.WEREWOLF, 1,
                          ActionSequence([
-                             Action(ActionType.SWAP, None,
+                             Action('Turn another player into a werewolf', ActionType.SWAP, None,
                                     Target.PLAYER_CARD_OTHER, Target.TABLE_CARD_BOTTOM)
                          ]))
 
@@ -94,7 +96,7 @@ class Mystic(Card):
     def __init__(self):
         super().__init__(Role.MYSTIC, Team.WEREWOLF, 1,
                          ActionSequence([
-                             Action(ActionType.VIEW, None,
+                             Action('Look at another players card', ActionType.VIEW, None,
                                     Target.PLAYER_CARD_OTHER, None)
                          ]))
 
@@ -104,11 +106,11 @@ class Seer(Card):
     def __init__(self):
         super().__init__(Role.SEER, Team.VILLAGER, 1,
                          ActionSequence([
-                             Action(ActionType.VIEW, ActionType.VIEW,
+                             Action('View two cards on the table', ActionType.VIEW, ActionType.VIEW,
                                     Target.TABLE_CARD_ANY, Target.TABLE_CARD_ANY),
-                             Action(ActionType.VIEW, None,
+                             Action('View any players card', ActionType.VIEW, None,
                                     Target.PLAYER_CARD_ANY, None)
-                         ], [ActionConcatenation.OR]))
+                         ], ActionConcatenation.OR))
 
 
 class Paranormal(Card):
@@ -116,11 +118,11 @@ class Paranormal(Card):
     def __init__(self):
         super().__init__(Role.PARANORMAL, Team.VILLAGER, 1,
                          ActionSequence([
-                             Action(ActionType.VIEW, ActionType.ADAPT,
+                             Action('View any players card. If that player is a werewolf/tanner, change team to that team', ActionType.VIEW, ActionType.ADAPT,
                                     Target.PLAYER_CARD_ANY, None, True),
-                             Action(ActionType.VIEW, ActionType.ADAPT,
+                             Action('View any players card. If that player is a werewolf/tanner, change team to that team', ActionType.VIEW, ActionType.ADAPT,
                                     Target.PLAYER_CARD_ANY, None, True)
-                         ], [ActionConcatenation.RESULT]))
+                         ], ActionConcatenation.RESULT))
 
 
 class Robber(Card):
@@ -128,7 +130,7 @@ class Robber(Card):
     def __init__(self):
         super().__init__(Role.ROBBER, Team.VILLAGER, 1,
                          ActionSequence([
-                             Action(ActionType.SWAP, ActionType.VIEW,
+                             Action('Swap with another player and view that card', ActionType.SWAP, ActionType.VIEW,
                                     Target.PLAYER_CARD_OTHER, Target.PLAYER_CARD_SELF)
                          ], optional=True))
 
@@ -138,7 +140,7 @@ class Witch(Card):
     def __init__(self):
         super().__init__(Role.WITCH, Team.VILLAGER, 1,
                          ActionSequence([
-                             Action(ActionType.VIEW, ActionType.SWAP,
+                             Action('View a card on the table and swap it with a player', ActionType.VIEW, ActionType.SWAP,
                                     Target.TABLE_CARD_ANY, Target.PLAYER_CARD_ANY)
                          ], optional=True))
 
@@ -148,7 +150,7 @@ class Gremlin(Card):
     def __init__(self):
         super().__init__(Role.GREMLIN, Team.VILLAGER, 1,
                          ActionSequence([
-                             Action(ActionType.SWAP, None,
+                             Action('Swap any two players cards', ActionType.SWAP, None,
                                     Target.PLAYER_CARD_ANY, Target.PLAYER_CARD_ANY)
                          ], optional=True))
 
@@ -158,7 +160,7 @@ class Drunk(Card):
     def __init__(self):
         super().__init__(Role.DRUNK, Team.VILLAGER, 1,
                          ActionSequence([
-                             Action(ActionType.SWAP, None,
+                             Action('Swap a card on the table with your card', ActionType.SWAP, None,
                                     Target.TABLE_CARD_ANY, Target.PLAYER_CARD_SELF)
                          ]))
 
